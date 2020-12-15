@@ -1,14 +1,16 @@
-var express = require("express");
-const app =express();
+var express=require('express');
+const app=express();
+var mysql=require('mysql');
 
-var bodyparser =require("body-parser");
-var mysql = require("mysql");
-var connection = mysql.createConnection({
-    host:"localhost",
+var bodyparser=require('body-parser');
+const { builtinModules } = require('module');
+const { nextTick } = require('process');
+
+var connect=mysql.createConnection({
+    host:'localhost',
     user:"root",
-    port:3306,
     password:"",
-    database:"dialabar"
+    database: 'dialabar'
 });
 
 app.use(bodyparser.json());
@@ -19,35 +21,55 @@ app.post('/register/',(req,res,next)=>{
     var data=req.body;
     var name= data.name;
     var email=data.email;
-    var password= data.password;
-
-    connection.query("SELECT * FROM login_info WHERE email= ?",[email],function(err,result,fields){
-
-        connection.on('error',(err)=>{
-            console.log("[mysql error]",err);
-        });
-
-        if(result && result.length){
-            res.json("User exists");
-        }
-        else{
-            var inser_cmd ="INSERT INTO login_info (name,email,password) values (?,?,?)";
-            var values=[name,email,password];
-            console.log(result);
-            console.log("executing:" + inser_cmd + "" + values);
+    var password=data.password;
     
-            connection.query(inser_cmd,values,(err,results,fields)=>{
-                connection.on("err",(err)=>{
-                    console.log("[mysql error]",err);
-                });
-                res.json("registered !");
-                console.log("successful.");
-            });
+
+    connect.query("select * from login_info where email=?",[email], function(err,result,fields){
+        connect.on('error',(err)=>{
+            console.log("[MySQL Error",err);
+        });
+        
+        if(result && result.length){
+            //res.json("Username already Exists");
+            res.json(result[0]);
         }
-
-
+        else
+        {
+            var insert="insert into login_info(name,email,password) values (?,?,?)";
+            values=[name,email,password];
+            connect.query(insert,values,(err,results,fields)=>{
+    connect.on('error',(err)=>{
+        console.log("[MySQL Error",err);
     });
 
+    console.log(" Registered");
+});
+
+   }  
+
+});
+});
+
+
+app.get('/register/',(req,res,next)=>{
+
+    var data=req.body;
+    var name= data.name;
+    var email=data.email;
+    var password=data.password;
+    
+
+    connect.query("select * from login_info", function(err,result,fields){
+        connect.on('error',(err)=>{
+            console.log("[MySQL Error",err);
+        });
+        
+        if(result && result.length){
+            //res.json("Username already Exists");
+            console.log(result);
+            res.json(result);
+        }
+});
 });
 
 app.post('/login/',(req,res,next)=>{
@@ -86,7 +108,6 @@ app.post('/login/',(req,res,next)=>{
 
 });
 
-
 app.post('/product/',(req,res,next)=>{
 
     var data=req.body;
@@ -123,7 +144,6 @@ app.post('/product/',(req,res,next)=>{
 
 });
 
-var server= app.listen(3000,function(){
-    var port=server.address().port;
-    console.log("server is running at http://localhost:%s",port);
+var server=app.listen(8000,()=>{   
+    console.log("Server running at http://localhost:8000");
 });
