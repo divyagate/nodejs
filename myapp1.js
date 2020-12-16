@@ -30,8 +30,9 @@ app.post('/register/',(req,res,next)=>{
         });
         
         if(result && result.length){
-            res.json("Username already Exists");
+           //res.json("Username already Exists");
             res.json(result[0]);
+            
         }
         else
         {
@@ -41,13 +42,22 @@ app.post('/register/',(req,res,next)=>{
     connect.on('error',(err)=>{
         console.log("[MySQL Error",err);
     });
-
     console.log(" Registered");
+});
+
+connect.query("select * from login_info where email=?",[email], function(err,result,fields){
+    connect.on('error',(err)=>{
+        console.log("[MySQL Error",err);
+    });
+    if(result && result.length){
+        res.json(result[0]);
+    }
 });
 
    }  
 
 });
+
 });
 
 
