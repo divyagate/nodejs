@@ -30,7 +30,7 @@ app.post('/register/',(req,res,next)=>{
         });
         
         if(result && result.length){
-            //res.json("Username already Exists");
+            res.json("Username already Exists");
             res.json(result[0]);
         }
         else
@@ -52,13 +52,6 @@ app.post('/register/',(req,res,next)=>{
 
 
 app.get('/register/',(req,res,next)=>{
-
-    var data=req.body;
-    var name= data.name;
-    var email=data.email;
-    var password=data.password;
-    
-
     connect.query("select * from login_info", function(err,result,fields){
         connect.on('error',(err)=>{
             console.log("[MySQL Error",err);
@@ -77,11 +70,15 @@ app.post('/login/',(req,res,next)=>{
     var data=req.body;
     var name= data.name;
     var email=data.email;
-    var password= data.password; 
+    var password=data.password;
+    
 
-    connection.query("SELECT * FROM login_info WHERE email= ?",[email],function(err,result,fields){
-
-        connection.on('error',(err)=>{
+    connect.query("select * from login_info where email=?",[email], function(err,result,fields){
+        connect.on('error',(err)=>{
+            console.log("[MySQL Error",err);
+        });
+        
+        connect.on('error',(err)=>{
             console.log("[mysql error]",err);
         });
 
@@ -101,11 +98,9 @@ app.post('/login/',(req,res,next)=>{
          else{
              res.json("User not found");
              res.end;
-        }
+        } 
 
-
-    });
-
+});
 });
 
 app.post('/product/',(req,res,next)=>{
@@ -115,9 +110,9 @@ app.post('/product/',(req,res,next)=>{
     var pdesc=data.pro_description;
     var pprice= data.pro_price;
 
-    connection.query("SELECT * FROM product WHERE pro_name=?",[pname],function(err,result,fields){
+    connect.query("SELECT * FROM product WHERE pro_name=?",[pname],function(err,result,fields){
 
-        connection.on('error',(err)=>{
+        connect.on('error',(err)=>{
             console.log("[mysql error]",err);
         });
 
@@ -130,8 +125,8 @@ app.post('/product/',(req,res,next)=>{
             console.log(result);
             console.log("executing:" + inser_pro + "" + values);
     
-            connection.query(inser_pro,values,(err,results,fields)=>{
-                connection.on("err",(err)=>{
+            connect.query(inser_pro,values,(err,results,fields)=>{
+                connect.on("err",(err)=>{
                     console.log("[mysql error]",err);
                 });
                 res.json("product added !");
